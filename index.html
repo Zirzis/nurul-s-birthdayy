@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Happy Birthday Novita ✨</title>
+<link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #ff4d88;
+  --bg: linear-gradient(135deg, #fce4ec 0%, #f3e5f5 100%);
+  --glass: rgba(255, 255, 255, 0.9);
+}
+body { margin:0; height:100vh; background: var(--bg); font-family: 'Poppins', sans-serif; display:flex; justify-content:center; align-items:center; overflow:hidden; }
+
+/* CSS UNTUK CANVAS PARTIKEL */
+#canvasBg, #canvasFg { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; }
+#canvasBg { z-index:0; } /* Di belakang kartu */
+#canvasFg { z-index:10; } /* Di depan kartu (menutupi foto/teks sebentar) */
+
+.card { 
+  position:relative; 
+  z-index:5; /* Berada di tengah-tengah antara kedua canvas */
+  background: var(--glass); backdrop-filter: blur(15px); border-radius: 25px; box-shadow: 0 20px 60px rgba(0,0,0,0.1); max-width: 380px; width: 90%; height: 650px; display: flex; flex-direction: column; overflow: hidden; 
+}
+.slide { position:absolute; inset:0; display:flex; flex-direction:column; opacity:0; transform: scale(0.95); pointer-events:none; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+.slide.active { opacity:1; transform: scale(1); pointer-events:auto; }
+.content { flex:1; padding:25px; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; overflow-y: auto; }
+h1 { font-family: 'Dancing Script', cursive; font-size:28px; color: var(--primary); margin: 10px 0; }
+p { font-size:14px; color:#444; line-height: 1.5; margin-bottom: 15px; }
+.pin-box { display:flex; gap:8px; margin-bottom: 15px; }
+.pin-box input { width:32px; height:42px; font-size:18px; text-align:center; border-radius:8px; border:2px solid #eee; background: #fff; color: var(--primary); font-weight: bold; }
+.keyboard { background: rgba(0,0,0,0.03); padding: 12px; border-radius: 15px; width: 100%; box-sizing: border-box; }
+.keyboard .row { display:flex; gap: 8px; justify-content:center; margin-bottom: 8px; }
+.keyboard button { width:50px; height:45px; border:none; border-radius:10px; font-size:18px; background: #fff; color: var(--primary); cursor:pointer; box-shadow: 0 3px 0 #ddd; transition: 0.1s; }
+.keyboard button:active { transform: translateY(2px); box-shadow: none; }
+.btn-action { background: var(--primary) !important; color: #fff !important; box-shadow: 0 3px 0 #c2185b !important; }
+.img-box { width: 100%; max-width: 200px; aspect-ratio: 1 / 1; object-fit: cover; border-radius: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); border: 4px solid #fff; margin-bottom: 15px; flex-shrink: 0; }
+.nav-btns { padding: 15px; display: flex; justify-content: center; gap: 10px; flex-shrink: 0; }
+.btn-nav { padding:10px 18px; border:none; border-radius:50px; font-weight: 600; font-size: 13px; cursor:pointer; transition: 0.3s; width: 100%; }
+.btn-next { background: var(--primary); color:#fff; }
+.btn-back { background: #eee; color: #666; }
+#musicToggle { position:fixed; top: 15px; right: 15px; z-index: 100; background: white; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); font-size: 18px; }
+</style>
+</head>
+<body>
+
+<canvas id="canvasBg"></canvas> <canvas id="canvasFg"></canvas> <button id="musicToggle" onclick="toggleMusic()">🎵</button>
+
+<div class="card">
+  <div class="slide active" id="slide1">
+    <div class="content">
+      <h1>Halo Novita Nurul Nadjwa! ✨</h1>
+      <p>Masukkan tanggal lahirmu (DDMMYY)</p>
+      <div class="pin-box">
+        <input type="password" maxlength="1" readonly>
+        <input type="password" maxlength="1" readonly>
+        <input type="password" maxlength="1" readonly>
+        <input type="password" maxlength="1" readonly>
+        <input type="password" maxlength="1" readonly>
+        <input type="password" maxlength="1" readonly>
+      </div>
+      <div class="keyboard">
+        <div class="row">
+          <button onclick="pressNum(1)">1</button><button onclick="pressNum(2)">2</button><button onclick="pressNum(3)">3</button>
+        </div>
+        <div class="row">
+          <button onclick="pressNum(4)">4</button><button onclick="pressNum(5)">5</button><button onclick="pressNum(6)">6</button>
+        </div>
+        <div class="row">
+          <button onclick="pressNum(7)">7</button><button onclick="pressNum(8)">8</button><button onclick="pressNum(9)">9</button>
+        </div>
+        <div class="row">
+          <button onclick="deleteNum()">⌫</button><button onclick="pressNum(0)">0</button>
+          <button class="btn-action" onclick="checkPin()">✔</button>
+        </div>
+      </div>
+      <p id="errorMsg" style="color: var(--primary); font-size: 12px; margin-top: 10px; font-weight: bold;"></p>
+    </div>
+  </div>
+
+  <div class="slide" id="slide2">
+    <div class="content">
+      <img src="birthday.gif" class="img-box">
+      <h1>Happy Birthday!🎉<br>04 april 2008</h1>
+      <p>hari ini, dunia menerima salah satu hadiah terindahnya—kelahiranmu. tangisan kecilmu dulu, perlahan berubah menjadi senyum yang menenangkan, menjadi harapan yang tumbuh di hati kedua orang tuamu.</p>
+      <div class="nav-btns">
+        <button class="btn-nav btn-next" onclick="nextSlide()">Buka Pesan 💌</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="slide3">
+    <div class="content">
+      <img src="foto.jpg" class="img-box">
+      <h1>remember this ✨</h1>
+      <p>kamu pernah menjadi anak kecil yang lucu, ceria, dan penuh tawa. seolah-olah, segala bentuk kasih selalu tahu jalannya untuk sampai kepadamu. masa itu sederhana, tapi begitu penuh kebahagiaan.</p>
+      <div class="nav-btns" style="gap:10px;">
+        <button class="btn-nav btn-back" onclick="prevSlide()">⬅ Kembali</button>
+        <button class="btn-nav btn-next" onclick="nextSlide()">Lanjut ❤️</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="slide" id="slide4">
+    <div class="content">
+      <img src="foto1.jpg" class="img-box">
+      <h1>04 april 2026💐</h1>
+      <p>sekarang kamu udah tumbuh jadi gadis yang cantik, kuat, dan mengagumkan. mungkin ga semua hal berjalan sesuai yang kamu bayangin, tapi look at you—you’re still standing, still chasing the life you want. that’s something to be really proud of.<br><br>doaku untukmu,<br>semoga hal-hal yang pernah bikin kamu patah justru jadi alasan kamu untuk tumbuh.<br>semoga semua usaha kamu tercapai, untuk dirimu dan kedua orang tuamu.<br>dan semoga dunia selalu mengiringimu dengan kebaikan yang tidak ada habisnya💝✨.<br><br>~written with love, Baitir😉</p>
+      <div class="nav-btns">
+        <button class="btn-nav btn-back" onclick="prevSlide()">⬅ Kembali ke slide 3</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentSlide = 1;
+const slides = document.querySelectorAll('.slide');
+const music = new Audio("musik.mp3");
+const sfx = new Audio("https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3");
+
+function checkPin() {
+  const inputs = document.querySelectorAll('#slide1 input');
+  const pin = [...inputs].map(i => i.value).join('');
+  if (pin === "040408") {
+    sfx.play(); music.play(); music.loop = true;
+    animateToSlide(2);
+  } else {
+    document.getElementById('errorMsg').innerText = "PIN salah!";
+    inputs.forEach(i => i.value = "");
+  }
+}
+
+function animateToSlide(target) {
+  slides.forEach(s => s.classList.remove('active'));
+  slides[target-1].classList.add('active');
+  currentSlide = target;
+}
+function nextSlide() { if(currentSlide < 4) animateToSlide(currentSlide + 1); }
+function prevSlide() { if(currentSlide > 2) animateToSlide(currentSlide - 1); }
+
+function pressNum(num) {
+  const inputs = document.querySelectorAll('#slide1 input');
+  for(let i=0; i<inputs.length; i++) { if(inputs[i].value === "") { inputs[i].value = num; break; } }
+}
+function deleteNum() {
+  const inputs = document.querySelectorAll('#slide1 input');
+  for(let i=inputs.length-1; i>=0; i--) { if(inputs[i].value !== "") { inputs[i].value = ""; break; } }
+}
+function toggleMusic() { music.paused ? music.play() : music.pause(); }
+
+// --- LOGIKA ANIMASI HATI 2 LAYER ---
+const canvasBg = document.getElementById("canvasBg");
+const canvasFg = document.getElementById("canvasFg");
+const ctxBg = canvasBg.getContext("2d");
+const ctxFg = canvasFg.getContext("2d");
+
+function setSize() {
+  canvasBg.width = canvasFg.width = window.innerWidth;
+  canvasBg.height = canvasFg.height = window.innerHeight;
+}
+setSize();
+window.addEventListener("resize", setSize);
+
+const daftarEmoji = ["❤️", "✨", "🌸", "🎈", "⭐", "🎉"];
+
+class Heart {
+  constructor() { this.reset(); }
+  reset() {
+    this.x = Math.random() * canvasBg.width;
+    this.y = canvasBg.height + 20;
+    this.size = Math.random() * 15 + 12;
+    this.speed = Math.random() * 1.5 + 0.5;
+    this.opacity = Math.random() * 0.5 + 0.3;
+    this.emoji = daftarEmoji[Math.floor(Math.random() * daftarEmoji.length)];
+    // Tentukan secara acak: muncul di depan kartu atau belakang kartu
+    this.layer = Math.random() > 0.7 ? "depan" : "belakang";
+  }
+  update() {
+    this.y -= this.speed;
+    if (this.y < -30) this.reset();
+
+    // Pilih context canvas berdasarkan layer-nya
+    const ctx = this.layer === "depan" ? ctxFg : ctxBg;
+    
+    ctx.save();
+    ctx.globalAlpha = this.opacity;
+    ctx.font = `${this.size}px serif`;
+    ctx.fillText(this.emoji, this.x, this.y);
+    ctx.restore();
+  }
+}
+
+// Saya buat agak ramai sedikit partikelnya (40 ikon)
+const hearts = Array.from({ length: 40 }, () => new Heart());
+
+function animate() {
+  ctxBg.clearRect(0, 0, canvasBg.width, canvasBg.height);
+  ctxFg.clearRect(0, 0, canvasFg.width, canvasFg.height);
+  hearts.forEach(h => h.update());
+  requestAnimationFrame(animate);
+}
+
+animate();
+</script>
+</body>
+</html>
